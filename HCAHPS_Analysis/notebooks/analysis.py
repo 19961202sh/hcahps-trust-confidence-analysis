@@ -18,6 +18,7 @@ base_folder = "outputs"
 fig_folder = os.path.join(base_folder, "figures")
 data_folder = os.path.join(base_folder, "datasets")
 
+#folders if not exist
 os.makedirs(fig_folder, exist_ok=True)
 os.makedirs(data_folder, exist_ok=True)
 
@@ -25,21 +26,21 @@ os.makedirs(data_folder, exist_ok=True)
 # Load Data
 # =========================================================
 
-state_results = pd.read_csv("data/state_results.csv")
-measures = pd.read_csv("data/measures.csv")
-states = pd.read_csv("data/states.csv")
-reports = pd.read_csv("data/reports.csv")
-responses = pd.read_csv("data/responses.csv")
+state_results = pd.read_csv("HCAHPS_Analysis/data/state_results.csv")
+measures = pd.read_csv("HCAHPS_Analysis/data/measures.csv")
+states = pd.read_csv("HCAHPS_Analysis/data/states.csv")
+reports = pd.read_csv("HCAHPS_Analysis/data/reports.csv")
+responses = pd.read_csv("HCAHPS_Analysis/data/responses.csv")
 
 # =========================================================
-# Clean Column Names
+# Clean Column Names (remove unwanted spaces)
 # =========================================================
 
 for df in [state_results, measures, states, reports, responses]:
     df.columns = df.columns.str.strip()
 
 # =========================================================
-# Merge Datasets
+# Merge Datasets (need one dataset for analysis)
 # =========================================================
 
 df = pd.merge(state_results, measures, on="Measure ID", how="left")
@@ -47,7 +48,7 @@ df = pd.merge(df, states, on="State", how="left")
 df = pd.merge(df, reports, on="Release Period", how="left")
 
 # =========================================================
-# Process Response Rate
+# Process Response Rate (converts to numbers and invalid values to NaN)
 # =========================================================
 
 responses["Response Rate (%)"] = pd.to_numeric(
@@ -114,14 +115,14 @@ if "Response Rate (%)" in df.columns:
 final_df.to_csv(f"{data_folder}/final_analysis_dataset.csv", index=False)
 
 # =========================================================
-# Descriptive Statistics
+# Descriptive Statistics (mean,min,max,std)
 # =========================================================
 
 print("\nDescriptive Statistics")
 print(final_df.describe())
 
 # =========================================================
-# Correlation Analysis (Hypothesis Testing)
+# Correlation Analysis (Hypothesis Testing)(measure linear relationship between Trust and Confidence)
 # =========================================================
 
 corr, p_value = pearsonr(
